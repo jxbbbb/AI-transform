@@ -1,0 +1,31 @@
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/inputs/1_3e121b826856b57b0afcf1346f2f67a9_1723183932.mp4 -an -vcodec copy runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/1_3e121b826856b57b0afcf1346f2f67a9_1723183932.mp4
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/inputs/1_3e121b826856b57b0afcf1346f2f67a9_1723183932.mp4 -vn -acodec copy runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/1_3e121b826856b57b0afcf1346f2f67a9_1723183932.aac
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/1_3e121b826856b57b0afcf1346f2f67a9_1723183932.aac -ss 00:00:02.540 -t 6.000 runtime/refer/81.wav
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/audios/6.wav -af adelay=20300 runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_6.wav
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/audios/2.wav -af adelay=2540 runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_2.wav
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -f lavfi -i anullsrc=r=44100:cl=mono -t 25565ms runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/group_1_level_0_silence.wav
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/audios/4.wav -af adelay=11420 runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_4.wav
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/audios/1.wav -af adelay=640 runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_1.wav
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/audios/3.wav -af adelay=6980 runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_3.wav
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/audios/5.wav -af adelay=15860 runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_5.wav
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/group_1_level_0_silence.wav -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_1.wav -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_2.wav -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_3.wav -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_4.wav -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_5.wav -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_6.wav -filter_complex [0:a]volume=1[0];[1:a]volume=7[1];[2:a]volume=6[2];[3:a]volume=5[3];[4:a]volume=4[4];[5:a]volume=3[5];[6:a]volume=2[6];[0][1][2][3][4][5][6]amix=inputs=7:duration=first[a] -map [a] -f wav runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/group_1_level_0.wav
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -f lavfi -i anullsrc=r=44100:cl=mono -t 25565ms runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/group_1_level_1_silence.wav
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/group_1_level_0.wav -af adelay=0 runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_group_1_level_0.wav
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/group_1_level_1_silence.wav -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/adelay_group_1_level_0.wav -filter_complex [0:a]volume=1[0];[1:a]volume=2[1];[0][1]amix=inputs=2:duration=first[a] -map [a] -f mp3 runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/group_1_level_1.mp3
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/1_3e121b826856b57b0afcf1346f2f67a9_1723183932.mp4 -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/group_1_level_1.mp3 -c:v copy -c:a copy runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/1_3e121b826856b57b0afcf1346f2f67a9_1723183932.mp4
+
+pkg/ffmpeg/windows/bin/ffmpeg.exe -i runtime/middle/1_3e121b826856b57b0afcf1346f2f67a9_1723183932/tmp/1_3e121b826856b57b0afcf1346f2f67a9_1723183932.mp4 -vf subtitles=runtime/srts/1_3e121b826856b57b0afcf1346f2f67a9_1723183932_split.srt runtime/outputs/1_3e121b826856b57b0afcf1346f2f67a9_1723183932.mp4

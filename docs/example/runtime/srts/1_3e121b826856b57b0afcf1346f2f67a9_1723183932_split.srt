@@ -1,0 +1,23 @@
+1
+00:00:00,640 --> 00:00:02,540
+Hello everyone, I am Nike.
+
+2
+00:00:02,540 --> 00:00:06,980
+Today, we begin to explain the actual combat of Nvidia Kodak's voice cloning
+
+3
+00:00:06,980 --> 00:00:11,420
+audio-video Chinese-English translation project. The background of this project is this. After
+
+4
+00:00:11,420 --> 00:00:15,860
+we came into contact with the open source project of cloning sound
+
+5
+00:00:15,860 --> 00:00:20,300
+and inferring audio based on text, we came up with an idea.
+
+6
+00:00:20,300 --> 00:00:25,565
+That is internationalization. The original intention of this project is to solve the problem of video internationalization.
