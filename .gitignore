@@ -1,8 +1,10 @@
 # 忽略 docs/ffmpeg 文件夹
 docs/ffmpeg/
-ai-transform-backend/pkg/ffmpeg/
+ai-transform-backend/pkg/ffmpeg/linux
+ai-transform-backend/pkg/ffmpeg/windows
 ai-transform-backend/runtime/inputs/*.mp4
 ai-transform-backend/pkg/ffmpeg/windows/bin/
 # 忽略开发配置文件
 ai-transform-backend/dev.config.yaml
 ai-transform-backend/dev.webapi.config.yaml
+ai-transform-backend/dev.referapi.config.yaml

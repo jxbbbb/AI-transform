@@ -17,6 +17,8 @@ import (
 	"fmt"
 	"github.com/IBM/sarama"
 	"path"
+	"regexp"
+	"strings"
 	"time"
 )
 
@@ -100,6 +102,7 @@ func (t *asr) messageHandlerFunc(consumerMessage *sarama.ConsumerMessage) error 
 		t.log.Error(err)
 		return err
 	}
+
 	producerPool := kafka.GetProducerPool(kafka.ProducerPoolKey)
 	producer := producerPool.Get()
 	defer producerPool.Put(producer)
@@ -157,8 +160,41 @@ loop:
 	}
 	if result != "" {
 		contentSlice := tasr.TenCentAsrToSRT(result)
-		//TODO 噪音字符过滤
+		contentSlice = t.filterModals(contentSlice)
 		return contentSlice, nil
 	}
 	return nil, err
+}
+
+func (t *asr) filterModals(contentSlice []string) []string {
+	//匹配一个汉字加多个中文标点
+	modalsStart := "^[\\p{Han}]{1}[，。！：？；]{1,}"
+	modalsStartRegexp := regexp.MustCompile(modalsStart)
+
+	//匹配配置文件中指定的语气词
+	modals := fmt.Sprintf("[%s]+", strings.Join(t.conf.Asr.Modals, ""))
+	modalsRegexp := regexp.MustCompile(modals)
+
+	//匹配一个或多个标点+零个或一个汉字+一个或多个标点
+	p := "[，。！：？；]+[\\p{Han}]{0,1}[，。！：？；]+"
+	reg := regexp.MustCompile(p)
+
+	list := make([]string, 0, len(contentSlice))
+	var j = 1
+	for i := 0; i < len(contentSlice); i += 4 {
+		c := contentSlice[i+2]
+		c = modalsStartRegexp.ReplaceAllString(c, "")
+		c = modalsRegexp.ReplaceAllString(c, "")
+		l := reg.FindAllString(c, -1)
+		for _, s := range l {
+			firstRune := string([]rune(s)[0])
+			c = strings.Replace(c, s, firstRune, 1)
+		}
+		if len(c) == 0 {
+			continue
+		}
+		list = append(list, fmt.Sprintf("%d", j), contentSlice[i+1], c, "")
+		j++
+	}
+	return list
 }
