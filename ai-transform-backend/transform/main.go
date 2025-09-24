@@ -13,6 +13,7 @@ import (
 	"ai-transform-backend/transform/asr"
 	av_extract "ai-transform-backend/transform/av-extract"
 	"ai-transform-backend/transform/entry"
+	refer_wav "ai-transform-backend/transform/refer-wav"
 	"context"
 	"flag"
 	"github.com/IBM/sarama"
@@ -67,5 +68,6 @@ func main() {
 	go entry.NewEntry(cnf, logger, csf).Start(ctx)
 	go av_extract.NewAvExtract(cnf, logger).Start(ctx)
 	go asr.NewAsr(cnf, logger, csf, data, asrfactory).Start(ctx)
+	go refer_wav.NewReferWav(cnf, logger).Start(ctx)
 	<-ctx.Done()
 }
