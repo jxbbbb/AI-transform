@@ -20,17 +20,18 @@ import (
 	"path"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 type translate struct {
-	conf              config.Config
+	conf              *config.Config
 	log               log.ILogger
 	cosStorageFactory storage.StorageFactory
 	data              data.IData
 	tf                machine_translate.TranslatorFactory
 }
 
-func NewTranslate(conf config.Config, log log.ILogger, cosStorageFactory storage.StorageFactory, tf machine_translate.TranslatorFactory, data data.IData) _interface.ConsumerTask {
+func NewTranslate(conf *config.Config, log log.ILogger, cosStorageFactory storage.StorageFactory, tf machine_translate.TranslatorFactory, data data.IData) _interface.ConsumerTask {
 	return &translate{
 		conf:              conf,
 		log:               log,
@@ -125,5 +126,41 @@ func (t *translate) messageHandlerFunc(consumerMessage *sarama.ConsumerMessage) 
 }
 
 func (t *translate) translateSrt(srtContentSlice []string, sourceLanguage, targetLanguage string) error {
+	tmt, err := t.tf.CreateTranslator()
+	if err != nil {
+		t.log.Error(err)
+		return err
+	}
+	resultList := make([]*string, 0)
+	count := 0
+	tmpSourceList := make([]string, 0)
+	for i := 0; i < len(srtContentSlice); i += 4 {
+		srt := srtContentSlice[i+2]
+		c := utf8.RuneCountInString(srt)
+		if count+c >= 6000 {
+			targetList, err := tmt.TextTranslateBatch(tmpSourceList, sourceLanguage, targetLanguage)
+			if err != nil {
+				t.log.Error(err)
+				return err
+			}
+			resultList = append(resultList, targetList...)
+			count = c
+			tmpSourceList = []string{srt}
+		} else {
+			tmpSourceList = append(tmpSourceList, srt)
+			count += c
+		}
+		if i == len(srtContentSlice)-4 {
+			targetList, err := tmt.TextTranslateBatch(tmpSourceList, sourceLanguage, targetLanguage)
+			if err != nil {
+				t.log.Error(err)
+				return err
+			}
+			resultList = append(resultList, targetList...)
+		}
+	}
+	for i := 0; i < len(resultList); i++ {
+		srtContentSlice[4*i+2] = *resultList[i]
+	}
 	return nil
 }

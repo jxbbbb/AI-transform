@@ -7,13 +7,17 @@ import (
 	"ai-transform-backend/pkg/constants"
 	"ai-transform-backend/pkg/db/mysql"
 	"ai-transform-backend/pkg/log"
+	"ai-transform-backend/pkg/machine-translate/tmt"
 	"ai-transform-backend/pkg/mq/kafka"
 	"ai-transform-backend/pkg/storage/cos"
 	"ai-transform-backend/pkg/utils"
 	"ai-transform-backend/transform/asr"
+	"ai-transform-backend/transform/audio_generation"
 	av_extract "ai-transform-backend/transform/av-extract"
+	"ai-transform-backend/transform/av-synthesis"
 	"ai-transform-backend/transform/entry"
 	refer_wav "ai-transform-backend/transform/refer-wav"
+	"ai-transform-backend/transform/translate"
 	"context"
 	"flag"
 	"github.com/IBM/sarama"
@@ -64,10 +68,19 @@ func main() {
 		cnf.Cos.SecretKey,
 		cnf.Cos.CDNDomain,
 	)
-	asrfactory := tasr.NewCreateAsrFactory(cnf.Asr.SecretId, cnf.Asr.SecretKey, cnf.Asr.Endpoint, cnf.Asr.Region)
+	asrFactory := tasr.NewCreateAsrFactory(cnf.Asr.SecretId, cnf.Asr.SecretKey, cnf.Asr.Endpoint, cnf.Asr.Region)
+
+	tf := tmt.NewCreateTmtFactory(
+		cnf.Tmt.SecretID,
+		cnf.Tmt.SecretKey,
+		cnf.Tmt.Endpoint,
+		cnf.Tmt.Region)
 	go entry.NewEntry(cnf, logger, csf).Start(ctx)
 	go av_extract.NewAvExtract(cnf, logger).Start(ctx)
-	go asr.NewAsr(cnf, logger, csf, data, asrfactory).Start(ctx)
+	go asr.NewAsr(cnf, logger, csf, data, asrFactory).Start(ctx)
 	go refer_wav.NewReferWav(cnf, logger).Start(ctx)
+	go translate.NewTranslate(cnf, logger, csf, tf, data).Start(ctx)
+	go audio_generation.NewGeneration(cnf, logger).Start(ctx)
+	go av_synthesis.NewAVSynthesis(cnf, logger).Start(ctx)
 	<-ctx.Done()
 }
